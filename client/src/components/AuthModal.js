@@ -1,36 +1,52 @@
-import React from 'react'
-import { useState } from 'react';
+import React from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import axios from "axios";
 
 const AuthModal = ({ setShowModal, isSignUp }) => {
-  const [email, setEmail] = useState(null)
-  const [password, setPassword] = useState(null)
-  const [confirmPassword, setConfirmPassword] = useState(null)
-  const [error, setError] = useState(null)
+  const [email, setEmail] = useState(null);
+  const [password, setPassword] = useState(null);
+  const [confirmPassword, setConfirmPassword] = useState(null);
+  const [error, setError] = useState(null);
 
+  let navigate = useNavigate();
   const handleClick = () => {
-    setShowModal(false)
-  }
+    setShowModal(false);
+  };
 
-  const handleSubmit = (e) => {
-    e.preventDefault()
+  const handleSubmit = async (e) => {
+    e.preventDefault();
     try {
-      if (isSignUp && (password !== confirmPassword)) {
+      if (isSignUp && password !== confirmPassword) {
         setError("Passwords need to match");
+        return;
       }
 
-      console.log("Make a post request to our database");
+      const response = await axios.post("http://localhost:8000/signup", {
+        email,
+        password,
+      });
+      const success = response.status === 201;
+      if (success) {
+        navigate("/onboarding");
+      }
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-
-  console.log(email, password, confirmPassword)
+  console.log(email, password, confirmPassword);
   return (
-    <div className='auth-modal'>
-      <div className="close-icon" onClick={handleClick}>(x)</div>
-      <h2>{isSignUp ? 'Create Account' : 'Log In'}</h2>
-      <p>By {isSignUp ? 'creating an account' : 'logging in'}, you agree to our terms. Learn how we process your data in our Privacy Policy & Cookie Policy</p>
+    <div className="auth-modal">
+      <div className="close-icon" onClick={handleClick}>
+        (x)
+      </div>
+      <h2>{isSignUp ? "Create Account" : "Log In"}</h2>
+      <p>
+        By {isSignUp ? "creating an account" : "logging in"}, you agree to our
+        terms. Learn how we process your data in our Privacy Policy & Cookie
+        Policy
+      </p>
       <form onSubmit={handleSubmit}>
         <input
           type="email"
@@ -48,14 +64,16 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
           required="true"
           onChange={(e) => setPassword(e.target.value)}
         />
-        {isSignUp && < input
-          type="password"
-          id="password-check"
-          name="password-check"
-          placeholder="confirm password"
-          required="true"
-          onChange={(e) => setConfirmPassword(e.target.value)}
-        />}
+        {isSignUp && (
+          <input
+            type="password"
+            id="password-check"
+            name="password-check"
+            placeholder="confirm password"
+            required="true"
+            onChange={(e) => setConfirmPassword(e.target.value)}
+          />
+        )}
         <input className="secondary-button" type="submit" />
         <p class="error">{error}</p>
       </form>
@@ -63,7 +81,7 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
       <hr />
       <h2>Get the App!</h2>
     </div>
-  )
-}
+  );
+};
 
-export default AuthModal 
+export default AuthModal;
