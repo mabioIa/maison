@@ -7,6 +7,7 @@ const { v4: uuidv4 } = require("uuid");
 const express = require("express");
 const app = express();
 
+const https = require("https");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const cors = require("cors");
@@ -23,7 +24,7 @@ app.post("/signup", async (req, res) => {
   const client = new MongoClient(process.env.URI);
   const { email, password } = req.body;
   const generatedUserId = uuidv4();
-  const hashedPassword = await bcrypt.hash(password, 10);
+  const hashed_password = await bcrypt.hash(password, 10);
 
   try {
     await client.connect();
@@ -39,7 +40,7 @@ app.post("/signup", async (req, res) => {
     const data = {
       user_id: generatedUserId,
       email: sanitisedEmail,
-      password: hashedPassword,
+      password: hashed_password,
     };
     const insertedUser = await users.insertOne(data);
     const token = jwt.sign(insertedUser, sanitisedEmail, {
@@ -64,7 +65,13 @@ app.post("/login", async (req, res) => {
     const database = client.db("app-data");
     const users = database.collection("users");
     const user = users.findOne({ email });
-    const matchedPassword = await bcrypt.compare(password, user.hashedPassword);
+
+    console.log(req.params.password);
+    console.log(user.password);
+    const matchedPassword = await bcrypt.compare(
+      password,
+      user.hashed_password
+    );
 
     if (user && matchedPassword) {
       const token = jwt.sign(user, email, {
