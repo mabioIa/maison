@@ -1,6 +1,7 @@
 import React from "react";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useCookies } from "react-cookie";
 import axios from "axios";
 
 const AuthModal = ({ setShowModal, isSignUp }) => {
@@ -8,6 +9,7 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
   const [password, setPassword] = useState(null);
   const [confirmPassword, setConfirmPassword] = useState(null);
   const [error, setError] = useState(null);
+  const [cookies, setCookie, removeCookie] = useCookies(["user"]);
 
   let navigate = useNavigate();
   const handleClick = () => {
@@ -22,20 +24,26 @@ const AuthModal = ({ setShowModal, isSignUp }) => {
         return;
       }
 
-      const response = await axios.post("http://localhost:8000/signup", {
-        email,
-        password,
-      });
+      const response = await axios.post(
+        `http://localhost:8000/${isSignUp ? "signup" : "login"}`,
+        {
+          email,
+          password,
+        }
+      );
+
+      setCookie("Email", response.data.email);
+      setCookie("UserId", response.data.userId);
+      setCookie("AuthToken", response.data.token);
+
       const success = response.status === 201;
-      if (success) {
-        navigate("/onboarding");
-      }
+      if (success && isSignUp) navigate("/onboarding");
+      if (success && !isSignUp) navigate("/dashboard");
     } catch (error) {
       console.log(error);
     }
   };
 
-  console.log(email, password, confirmPassword);
   return (
     <div className="auth-modal">
       <div className="close-icon" onClick={handleClick}>
