@@ -1,5 +1,5 @@
 import config from "../config/config";
-import { expressJwt } from "express-jwt";
+const { expressjwt: expressJwt } = require("express-jwt");
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
 
@@ -39,6 +39,7 @@ const requireLogin = () =>
   expressJwt({
     secret: config.jwtSecret,
     userProperty: "auth",
+    algorithms: ["HS256"],
   });
 
 const hasAuthorization = (req, res, next) => {

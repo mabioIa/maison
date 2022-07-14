@@ -8,14 +8,14 @@ router.route("/api/users").get(userController.list).post(userController.create);
 
 router
   .route("/api/users/:userId")
-  .get(authController.requireLogin, userController.read)
+  .get(authController.requireLogin(), userController.read)
   .put(
-    authController.requireLogin,
+    authController.requireLogin(),
     authController.hasAuthorization,
     userController.update
   )
   .delete(
-    authController.requireLogin,
+    authController.requireLogin(),
     authController.hasAuthorization,
     userController.remove
   );
