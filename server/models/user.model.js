@@ -1,7 +1,7 @@
 import mongoose from "mongoose";
+import crypto from "crypto";
 
-const { Schema } = mongoose;
-const UserSchema = new Schema({
+const UserSchema = new mongoose.Schema({
   name: {
     type: String,
     trim: true,
@@ -18,6 +18,7 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  updated: Date,
   hashed_password: {
     type: String,
     required: "Password is required",
@@ -26,21 +27,21 @@ const UserSchema = new Schema({
 });
 
 UserSchema.methods = {
-  authenticate: (plainText) => {
+  authenticate: function (plainText) {
     return this.encryptPassword(plainText) === this.hashed_password;
   },
-  encryptPassword: (password) => {
+  encryptPassword: function (password) {
     if (!password) return "";
     try {
       return crypto
         .createHmac("sha1", this.salt)
         .update(password)
         .digest("hex");
-    } catch (err) {
+    } catch (e) {
       return "";
     }
   },
-  makeSalt: () => {
+  makeSalt: function () {
     return Math.round(new Date().valueOf() * Math.random()) + "";
   },
 };

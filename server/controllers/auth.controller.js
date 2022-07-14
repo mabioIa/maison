@@ -1,8 +1,7 @@
 import config from "../config/config";
+import { expressJwt } from "express-jwt";
 import jwt from "jsonwebtoken";
 import User from "../models/user.model";
-
-const { expressjwt: expressJwt } = require("express-jwt");
 
 const login = async (req, res) => {
   try {
@@ -36,11 +35,11 @@ const logout = (req, res) => {
   });
 };
 
-const requireLogin = expressJwt({
-  secret: config.jwtSecret,
-  userProperty: "auth",
-  algorithms: ["RS256"],
-});
+const requireLogin = () =>
+  expressJwt({
+    secret: config.jwtSecret,
+    userProperty: "auth",
+  });
 
 const hasAuthorization = (req, res, next) => {
   if (!(req.profile && req.auth && req.profile._id == req.auth._id)) {
